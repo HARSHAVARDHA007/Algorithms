@@ -1,0 +1,1 @@
+-- Set of mandatory must know graph algorithms written from scratch.
