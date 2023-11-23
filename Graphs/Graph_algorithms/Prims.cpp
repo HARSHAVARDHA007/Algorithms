@@ -2,7 +2,9 @@
 // Applicable only for weighted undirected graph
 // Greedy algorithm
 // O(V* logV^2)
-#include<bits/stdc+.h>
+#include<iostream>
+#include<vector>
+#include <queue>
 using namespace std;
 
 class Graph {
@@ -24,17 +26,18 @@ class Graph {
 
   int prims(int source) {
     priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>>> Q;
-    bool* visited = new int[nodes]{0};
+    bool* visited = new bool[nodes]{0};
+    int ans =0;
+    
     // Add the source to the priority queue - {weight, node}
     Q.push({source,0});
     
     while(!Q.empty()) {
       // Take the top element
       auto best = Q.top();
-      q.pop();
+      Q.pop();
       int next_edge = best.second;
       int weight = best.first;
-      int ans = 0;
 
       if(visited[next_edge]) {
         // discard this edge as the other node is also already attached to the MST
