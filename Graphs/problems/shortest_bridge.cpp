@@ -1,11 +1,5 @@
-/*
-
-https://leetcode.com/problems/shortest-bridge/
-
-*/
-#include <bits/stdc++.h>
+#include<bits/stdc++.h>
 using namespace std;
-
 class Solution
 {
 public:
@@ -13,24 +7,16 @@ public:
   int dy[4] = {0, 0, -1, 1};
   int rows, cols;
   queue<pair<int, pair<int, int>>> q;
-  void colorTheGraph(vector<vector<int>> &grid, int x, int y)
+  void DFS(vector<vector<int>> &grid, vector<vector<int>> &visited, int x, int y)
   {
-    grid[x][y] = 2;
-    int added = 0;
+    visited[x][y] = true;
+    q.push({0, {x, y}});
     for (int k = 0; k < 4; k++)
     {
       int nextX = x + dx[k], nextY = y + dy[k];
-      if (nextX >= 0 && nextX < rows && nextY >= 0 && nextY < cols)
+      if (nextX >= 0 && nextX < rows && nextY >= 0 && nextY < cols && !visited[nextX][nextY] && grid[nextX][nextY] == 1)
       {
-        if (grid[nextX][nextY] == 1)
-        {
-          colorTheGraph(grid, nextX, nextY);
-        }
-        else if (grid[nextX][nextY] == 0 && !added)
-        {
-          q.push({0, {x, y}});
-          added = 1;
-        }
+        DFS(grid,visited,nextX,nextY);
       }
     }
   }
@@ -38,25 +24,19 @@ public:
   {
     rows = grid.size();
     cols = grid[0].size();
-    int answer = INT_MAX;
-    for (int i = 0; i < rows; i++)
+    vector<vector<int>> visited(rows, vector<int>(cols, 0));
+    bool loop = false;
+    for (int i = 0; i < rows && !loop; i++)
     {
-      int getOut = 0;
-      for (int j = 0; j < cols; j++)
+      for (int j = 0; j < cols && !loop; j++)
       {
         if (grid[i][j] == 1)
         {
-          colorTheGraph(grid, i, j);
-          getOut = 1;
-          break;
+          DFS(grid, visited, i, j);
+          loop = true;
         }
       }
-      if (getOut)
-      {
-        break;
-      }
     }
-    vector<vector<int>> visited(rows, vector<int>(cols, 0));
     while (!q.empty())
     {
       int currCount = q.front().first;
@@ -67,19 +47,19 @@ public:
       for (int k = 0; k < 4; k++)
       {
         int nextX = currX + dx[k], nextY = currY + dy[k];
-        if (nextX >= 0 && nextX < rows && nextY >= 0 && nextY < cols)
+        if (nextX >= 0 && nextX < rows && nextY >= 0 && nextY < cols && !visited[nextX][nextY])
         {
           if (grid[nextX][nextY] == 1)
           {
             return currCount;
           }
-          else if (grid[nextX][nextY] == 0 && !visited[nextX][nextY])
+          else if (grid[nextX][nextY] == 0)
           {
             q.push({currCount + 1, {nextX, nextY}});
           }
         }
       }
     }
-    return answer;
+    return -1;
   }
 };
