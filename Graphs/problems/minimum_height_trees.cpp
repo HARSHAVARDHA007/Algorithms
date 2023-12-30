@@ -1,38 +1,82 @@
-vector<int> findMinHeightTrees(int n, vector<vector<int>>& edges) {
-        if(n==0)
+class Graph
+{
+public:
+    int n;
+    vector<int> *adjList;
+    vector<int> degree;
+    vector<bool> visited;
+    Graph(int n)
+    {
+        this->n = n;
+        adjList = new vector<int>[n];
+        degree.resize(n);
+        visited.assign(n, false);
+    }
+    ~Graph()
+    {
+        delete[] adjList;
+    }
+    void addEdge(int u, int v)
+    {
+        adjList[u].push_back(v);
+        adjList[v].push_back(u);
+        degree[u]++;
+        degree[v]++;
+    }
+};
+
+class Solution
+{
+public:
+    vector<int> findMinHeightTrees(int n, vector<vector<int>> &edges)
+    {
+        if (n == 0)
             return {};
-        if(n==1)
+        if (n == 1)
             return {0};
-        vector<int>res;
-        vector<int>degrees(n,0);
-        vector<vector<int>>adj(n);
-        for(int i=0;i<edges.size();i++)
+        if (n == 2)
+            return {0, 1};
+        Graph g = Graph(n);
+        for (auto edge : edges)
         {
-            adj[edges[i][0]].push_back(edges[i][1]);//creating adjacent list
-            adj[edges[i][1]].push_back(edges[i][0]);
-            degrees[edges[i][1]]++;//updating how many edges each node has
-            degrees[edges[i][0]]++;
+            g.addEdge(edge[0], edge[1]);
         }
-        queue<int>queue;
-        for(int i=0;i<n;i++)
+        // add all the leaves into queue
+        queue<int> q;
+        vector<int> res;
+        int count = n;
+        for (int i = 0; i < n; i++)
         {
-            if(degrees[i]==1)//adding all the leave nodes
-                queue.push(i);
-        }
-        while(!queue.empty())
-        {
-            res.clear();// clear vector before we start traversing level by level.
-            int size=queue.size();
-            for(int i=0;i<size;i++)
+            if (g.degree[i] == 1)
             {
-                int cur=queue.front();
-                queue.pop();
-                res.push_back(cur);//adding nodes to vector.Goal is to get a vector of  just 1 or 2 nodes available.
-                for(auto &neighbor:adj[cur])
+                g.degree[i]--;
+                q.push(i);
+            }
+        }
+        while (count)
+        {
+            if (count <= 2)
+            {
+                return res;
+            }
+            for (auto ele : res)
+            {
+                q.push(ele);
+            }
+            res.clear();
+            // relax all nodes at each level
+            while (!q.empty())
+            {
+                int curr = q.front();
+                q.pop();
+                count--;
+                for (auto neighbour : g.adjList[curr])
                 {
-                    degrees[neighbor]--;//removing current leave nodes
-                    if(degrees[neighbor]==1)//adding current leave nodes
-                        queue.push(neighbor);
+                    g.degree[neighbour]--;
+                    if (g.degree[neighbour] == 1)
+                    {
+                        res.push_back(neighbour);
+                    }
                 }
             }
         }
